@@ -1,6 +1,6 @@
 {
   "name": "bambulab-filament-control",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Bambu Lab AMS filament envanteri ve takip uygulaması",
   "main": "./out/main/index.js",
   "author": "Batuhan Yiğit",

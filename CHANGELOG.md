@@ -4,6 +4,19 @@ All notable changes to this project are documented here. The format is based on
 [Keep a Changelog](https://keepachangelog.com/) and this project adheres to
 [Semantic Versioning](https://semver.org/).
 
+## [1.0.1] - 2026-06-14
+
+### Fixed
+- "Object has been destroyed" crash when closing the app (AMS state was sent to a
+  destroyed window during shutdown).
+
+### Changed
+- Generalized wording: supports Bambu Lab printers with AMS, not just the X1 Carbon.
+
+### Added
+- `ROADMAP.md` with planned features (incl. LAN-only vs phone control, MakerWorld
+  project finder by owned filament colors).
+
 ## [1.0.0] - 2026-06-14
 
 ### Added
