@@ -30,6 +30,34 @@ issue or a discussion. Checked items are done.
 - [ ] Multi-AMS / AMS Lite: show more than one unit on the dashboard
 - [ ] Spool weight via scale (tare = empty spool weight → grams from measured weight)
 - [ ] Drying reminders / humidity tracking
+- [ ] **LAN-only vs phone control** — In LAN-only mode the Bambu Handy app / cloud
+      control stops working. Find a workaround so local monitoring in this app and
+      phone/cloud control can coexist (investigate cloud-MQTT access, dual-mode, or
+      at least document the trade-off and guide the user).
+
+## 🧩 Planned (large) — MakerWorld project finder
+
+A big, comprehensive feature for a later phase (planning only for now).
+
+**Goal:** discover MakerWorld models you can actually print with the filaments you
+already own. Example: you have yellow, black, white and red → the app surfaces the
+"Pikachu" model. Browse/search MakerWorld and filter results by your inventory colors.
+
+- [ ] Search MakerWorld by keyword / tags and show results in-app (thumbnail, title,
+      designer, like/download counts)
+- [ ] **Match by owned colors** — given the colors in your inventory, rank models whose
+      required color slots are covered by what you have (exact + close-color matching)
+- [ ] Filter: multi-color (AMS) models **and** single-color / no-AMS models
+- [ ] Filter by material/type, plate count, difficulty, license
+- [ ] "What can I print right now?" view — only models fully buildable with current stock
+- [ ] Open the model on MakerWorld / send to slicer
+
+**Open questions / risks to investigate:**
+- MakerWorld has no official public API — needs an unofficial endpoint or scraping;
+  check Terms of Service, rate limits and stability before relying on it.
+- Color metadata: how to reliably read a model's required colors / per-part palette.
+- Matching heuristic: map model color slots → inventory colors (RGB distance, allow
+  substitutions, handle "any color" parts).
 
 ## 💡 Ideas / maybe
 
