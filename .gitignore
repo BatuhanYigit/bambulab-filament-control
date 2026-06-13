@@ -6,3 +6,6 @@ dist/
 npm-debug.log*
 .vite/
 *.tsbuildinfo
+
+# Private local context for Claude (not for the public repo)
+CLAUDE.md
