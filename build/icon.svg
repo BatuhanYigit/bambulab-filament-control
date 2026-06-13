@@ -1,0 +1,43 @@
+<svg width="512" height="512" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#1b2a22"/>
+      <stop offset="0.55" stop-color="#0f1413"/>
+      <stop offset="1" stop-color="#0b0d0e"/>
+    </linearGradient>
+    <linearGradient id="disc" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#1ed368"/>
+      <stop offset="1" stop-color="#008f37"/>
+    </linearGradient>
+    <radialGradient id="sheen" cx="0.35" cy="0.3" r="0.8">
+      <stop offset="0" stop-color="#ffffff" stop-opacity="0.35"/>
+      <stop offset="0.4" stop-color="#ffffff" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+
+  <!-- background -->
+  <rect x="0" y="0" width="512" height="512" rx="112" fill="url(#bg)"/>
+  <rect x="6" y="6" width="500" height="500" rx="106" fill="none" stroke="#2c3336" stroke-width="3"/>
+
+  <!-- filament strand feeding out -->
+  <path d="M256 256 C 360 300, 392 360, 360 416" fill="none" stroke="#ffb703" stroke-width="14" stroke-linecap="round"/>
+  <circle cx="360" cy="420" r="13" fill="#ffb703"/>
+
+  <!-- spool side disc -->
+  <circle cx="256" cy="256" r="168" fill="url(#disc)"/>
+  <circle cx="256" cy="256" r="168" fill="url(#sheen)"/>
+  <circle cx="256" cy="256" r="168" fill="none" stroke="#0a3d1d" stroke-width="6" opacity="0.5"/>
+
+  <!-- wound filament rings -->
+  <g fill="none" stroke="#0a3d1d" stroke-opacity="0.28" stroke-width="3">
+    <circle cx="256" cy="256" r="150"/>
+    <circle cx="256" cy="256" r="134"/>
+    <circle cx="256" cy="256" r="118"/>
+    <circle cx="256" cy="256" r="102"/>
+  </g>
+
+  <!-- hub -->
+  <circle cx="256" cy="256" r="74" fill="#0f1413"/>
+  <circle cx="256" cy="256" r="74" fill="none" stroke="#1ed368" stroke-width="8"/>
+  <circle cx="256" cy="256" r="30" fill="#0b0d0e" stroke="#2c3336" stroke-width="5"/>
+</svg>

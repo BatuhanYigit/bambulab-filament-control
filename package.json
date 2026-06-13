@@ -1,0 +1,90 @@
+{
+  "name": "bambulab-filament-control",
+  "version": "1.0.0",
+  "description": "Bambu Lab AMS filament envanteri ve takip uygulaması",
+  "main": "./out/main/index.js",
+  "author": "Batuhan Yiğit",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/BatuhanYigit/bambulab-filament-control.git"
+  },
+  "homepage": "https://github.com/BatuhanYigit/bambulab-filament-control",
+  "scripts": {
+    "dev": "electron-vite dev",
+    "build": "electron-vite build",
+    "start": "electron-vite preview",
+    "package": "electron-vite build && electron-builder",
+    "icons": "node scripts/gen-icons.mjs",
+    "shots": "electron-vite build && cross-env SHOTS=1 electron .",
+    "typecheck": "tsc --noEmit -p tsconfig.node.json && tsc --noEmit -p tsconfig.web.json"
+  },
+  "dependencies": {
+    "mqtt": "^5.10.1"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.0",
+    "@types/react": "^18.3.12",
+    "@types/react-dom": "^18.3.1",
+    "@vitejs/plugin-react": "^4.3.4",
+    "autoprefixer": "^10.4.20",
+    "cross-env": "^10.1.0",
+    "electron": "^33.2.0",
+    "electron-builder": "^25.1.8",
+    "electron-vite": "^2.3.0",
+    "lucide-react": "^0.460.0",
+    "png-to-ico": "^3.0.1",
+    "postcss": "^8.4.49",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "sharp": "^0.35.1",
+    "tailwindcss": "^3.4.15",
+    "typescript": "^5.7.2",
+    "vite": "^5.4.11"
+  },
+  "build": {
+    "appId": "com.batuhanyigit.bambufilamentcontrol",
+    "productName": "Bambu Filament Control",
+    "directories": {
+      "output": "dist",
+      "buildResources": "build"
+    },
+    "files": [
+      "out/**/*"
+    ],
+    "win": {
+      "icon": "build/icon.ico",
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        },
+        {
+          "target": "portable",
+          "arch": [
+            "x64"
+          ]
+        }
+      ]
+    },
+    "nsis": {
+      "oneClick": false,
+      "perMachine": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "Bambu Filament Control"
+    },
+    "portable": {
+      "artifactName": "Bambu-Filament-Control-${version}-portable.exe"
+    },
+    "artifactName": "Bambu-Filament-Control-Setup-${version}.${ext}",
+    "publish": [
+      {
+        "provider": "github"
+      }
+    ]
+  }
+}
