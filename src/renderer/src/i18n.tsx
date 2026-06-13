@@ -8,7 +8,7 @@ type Dict = Record<string, string>
 // Tüm arayüz metinleri. Anahtarlar alan-öneki ile gruplanmıştır.
 const TR: Dict = {
   'app.title': 'Filament Kontrol',
-  'app.subtitle': 'Bambu Lab · X1C',
+  'app.subtitle': 'Bambu Lab · AMS',
   'app.loading': 'Yükleniyor…',
   'app.poweredBy': 'Powered by Batuhan Yiğit',
 
@@ -142,7 +142,7 @@ const TR: Dict = {
   'log.status': 'durum',
   'log.min': 'dk',
 
-  'set.printerTitle': 'Yazıcı Bağlantısı (X1 Carbon · LAN)',
+  'set.printerTitle': 'Yazıcı Bağlantısı (Bambu Lab · LAN)',
   'set.scanTitle': 'Ağda yazıcı ara (otomatik IP bul)',
   'set.scan': 'Tara',
   'set.scanning': 'Taranıyor…',
@@ -221,7 +221,7 @@ const TR: Dict = {
   'tour.replay': 'Tanıtım turunu tekrar göster',
   'tour.welcome.title': '👋 Hoş geldin!',
   'tour.welcome.body':
-    'Bu uygulama Bambu Lab X1C + AMS için filament envanteri ve takip aracıdır. Kısa bir turla menüleri tanıtayım.',
+    'Bu uygulama AMS’li Bambu Lab 3D yazıcılar için filament envanteri ve takip aracıdır. Kısa bir turla menüleri tanıtayım.',
   'tour.panel.title': 'Panel',
   'tour.panel.body':
     'Genel bakış: toplam stok, düşük stok uyarıları, canlı AMS durumu ve baskı sırasında ilerleme/sıcaklık/aktif filament burada.',
@@ -244,7 +244,7 @@ const TR: Dict = {
 
 const EN: Dict = {
   'app.title': 'Filament Control',
-  'app.subtitle': 'Bambu Lab · X1C',
+  'app.subtitle': 'Bambu Lab · AMS',
   'app.loading': 'Loading…',
   'app.poweredBy': 'Powered by Batuhan Yiğit',
 
@@ -378,7 +378,7 @@ const EN: Dict = {
   'log.status': 'status',
   'log.min': 'min',
 
-  'set.printerTitle': 'Printer Connection (X1 Carbon · LAN)',
+  'set.printerTitle': 'Printer Connection (Bambu Lab · LAN)',
   'set.scanTitle': 'Find printer on network (auto-detect IP)',
   'set.scan': 'Scan',
   'set.scanning': 'Scanning…',
@@ -456,7 +456,7 @@ const EN: Dict = {
   'tour.replay': 'Show the intro tour again',
   'tour.welcome.title': '👋 Welcome!',
   'tour.welcome.body':
-    'This app is a filament inventory & tracker for the Bambu Lab X1C + AMS. Let me give you a quick tour of the menus.',
+    'This app is a filament inventory & tracker for Bambu Lab 3D printers with AMS. Let me give you a quick tour of the menus.',
   'tour.panel.title': 'Dashboard',
   'tour.panel.body':
     'Overview: total stock, low-stock alerts, live AMS status, and during a print the progress, temperatures and active filament.',

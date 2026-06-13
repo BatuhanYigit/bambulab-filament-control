@@ -4,7 +4,7 @@
 
 # Bambu Filament Control
 
-**Filament inventory & usage tracker for the Bambu Lab X1 Carbon + AMS.**
+**Filament inventory & usage tracker for Bambu Lab 3D printers + AMS.**
 
 [![CI](https://github.com/BatuhanYigit/bambulab-filament-control/actions/workflows/ci.yml/badge.svg)](https://github.com/BatuhanYigit/bambulab-filament-control/actions/workflows/ci.yml)
 [![Release](https://github.com/BatuhanYigit/bambulab-filament-control/actions/workflows/release.yml/badge.svg)](https://github.com/BatuhanYigit/bambulab-filament-control/releases)
@@ -60,7 +60,7 @@ _(IP, serial, access code and email are redacted in this screenshot.)_
   Color swatch, brand, material and recommended temperatures at a glance.
 - **Sealed vs opened spools** — unopened spools look vacuum-sealed; click to open (with
   confirmation) or re-seal. Any spool you deduct from is marked opened automatically.
-- **Live AMS** — connects to the X1C over your LAN (MQTT) and reads slot filament type,
+- **Live AMS** — connects to the printer over your LAN (MQTT) and reads slot filament type,
   color and RFID remaining percentage. RFID-matched spools sync their remaining grams.
 - **Network discovery** — finds the printer on your network (SSDP + port scan) and fills
   in the IP and serial for you.
@@ -79,7 +79,7 @@ _(IP, serial, access code and email are redacted in this screenshot.)_
 2. Download **`Bambu-Filament-Control-Setup-x.y.z.exe`** (installer) or the **`-portable.exe`** (no install).
 3. Run it. Windows SmartScreen may warn about an unsigned app — choose _More info → Run anyway_.
 
-## Connect to your printer (X1C)
+## Connect to your printer
 
 1. On the printer: **Settings → WLAN → LAN Only Mode**, note the **Access Code**.
 2. The same screen shows the printer **IP** and **Serial**.
@@ -132,7 +132,7 @@ Electron · Vite · React · TypeScript · Tailwind CSS · `mqtt`. Data is store
 
 ## Türkçe
 
-**Bambu Lab X1 Carbon + AMS için filament envanteri ve kullanım takip uygulaması.**
+**Bambu Lab 3D yazıcılar + AMS için filament envanteri ve kullanım takip uygulaması.**
 
 Elindeki filamentlerin ne kadar kaldığını, hangi makaraların açık olduğunu ve her baskının
 ne kadar harcadığını takip et — canlı AMS verisi, zengin renk kataloğu ve Bambu Cloud geçmişiyle.
@@ -145,7 +145,7 @@ ne kadar harcadığını takip et — canlı AMS verisi, zengin renk kataloğu v
   örneği, marka, malzeme ve önerilen sıcaklıklar.
 - **Mühürlü / açık makaralar** — açılmamış makaralar vakumlu poşet gibi görünür; tıklayıp
   onaylayarak açarsın veya tekrar mühürlersin. Gram düşülen makara otomatik "açık" olur.
-- **Canlı AMS** — X1C'ye yerel ağdan (MQTT) bağlanır; yuva tipi, rengi ve RFID kalan
+- **Canlı AMS** — yazıcıya yerel ağdan (MQTT) bağlanır; yuva tipi, rengi ve RFID kalan
   yüzdesini okur, eşleşen makaraların gramını günceller.
 - **Ağda yazıcı bulma** — SSDP + port taramasıyla yazıcıyı bulup IP/seri no'yu doldurur.
 - **Filament kataloğu** — Bambu Lab, eSun, Polymaker, SUNLU (Global) ve Porima (Türkiye)
