@@ -122,6 +122,10 @@ portable exe and attaches them to a GitHub Release.
 Electron · Vite · React · TypeScript · Tailwind CSS · `mqtt`. Data is stored locally in
 `%APPDATA%/bambulab-filament-control/filament-data.json`.
 
+## Roadmap
+
+Planned features and ideas live in [ROADMAP.md](ROADMAP.md). Suggestions welcome — open an issue.
+
 ## License
 
 [MIT](LICENSE) © Batuhan Yiğit
