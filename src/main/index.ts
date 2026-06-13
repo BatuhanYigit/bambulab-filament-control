@@ -30,6 +30,9 @@ function createWindow(): void {
   })
 
   mainWindow.on('ready-to-show', () => mainWindow?.show())
+  mainWindow.on('closed', () => {
+    mainWindow = null
+  })
 
   mainWindow.webContents.setWindowOpenHandler((details) => {
     shell.openExternal(details.url)
@@ -43,9 +46,11 @@ function createWindow(): void {
   }
 }
 
-// AMS durumunu renderer'a aktif olarak ilet
+// AMS durumunu renderer'a aktif olarak ilet (pencere yıkıldıysa gönderme — kapanışta crash olmasın)
 onAmsState((state) => {
-  mainWindow?.webContents.send('ams:state', state)
+  if (mainWindow && !mainWindow.isDestroyed() && !mainWindow.webContents.isDestroyed()) {
+    mainWindow.webContents.send('ams:state', state)
+  }
 })
 
 function registerIpc(): void {
