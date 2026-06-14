@@ -38,6 +38,7 @@ export function MakerWorld(): React.JSX.Element {
   const [loadingMore, setLoadingMore] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [total, setTotal] = useState(0)
+  const [isSearch, setIsSearch] = useState(false)
 
   // filters
   const [tolerance, setTolerance] = useState(70)
@@ -96,6 +97,7 @@ export function MakerWorld(): React.JSX.Element {
       setLoading(true)
       setModels([])
       setColorsMap({})
+      setIsSearch(false)
     }
     setError(null)
     const runId = ++runIdRef.current
@@ -129,11 +131,31 @@ export function MakerWorld(): React.JSX.Element {
     loadColors(fresh, runId)
   }
 
-  // MakerWorld'ün metin arama API'si dışarıdan çalışmadığı için aramayı tarayıcıda aç
-  const onSearch = (): void => {
+  // Anahtar kelime araması: gizli tarayıcı penceresiyle (sonuçlar yine renklerinle eşleşir)
+  const runSearch = async (): Promise<void> => {
     const term = q.trim()
     if (!term) return
-    window.open(`https://makerworld.com/en/models/search?keyword=${encodeURIComponent(term)}`, '_blank')
+    setLoading(true)
+    setModels([])
+    setColorsMap({})
+    setError(null)
+    setIsSearch(true)
+    const runId = ++runIdRef.current
+    const res = await window.api.mwSearchBrowser(term)
+    if (runId !== runIdRef.current) return
+    setLoading(false)
+    if (!res.ok || !res.models || res.models.length === 0) {
+      setError(res.error ?? t('mw.noResults'))
+      return
+    }
+    setModels(res.models)
+    const init: Record<number, ColorState> = {}
+    res.models.forEach((m) => (init[m.id] = { colors: [], loading: true }))
+    setColorsMap(init)
+    loadColors(res.models, runId)
+  }
+  const onSearch = (): void => {
+    void runSearch()
   }
   const onTrending = (): void => {
     setQ('')
@@ -212,8 +234,8 @@ export function MakerWorld(): React.JSX.Element {
             onKeyDown={(e) => e.key === 'Enter' && onSearch()}
           />
         </div>
-        <button className="btn-primary" onClick={onSearch} disabled={!q.trim()}>
-          <ExternalLink size={16} /> {t('mw.searchBrowser')}
+        <button className="btn-primary" onClick={onSearch} disabled={!q.trim() || loading}>
+          <Search size={16} /> {t('common.search')}
         </button>
         <button className="btn-ghost" onClick={onTrending} disabled={loading || !cloud?.token}>
           <Compass size={16} /> {t('mw.trending')}
@@ -407,7 +429,7 @@ export function MakerWorld(): React.JSX.Element {
         })}
       </div>
 
-      {models.length > 0 && !loading && (
+      {models.length > 0 && !loading && !isSearch && (
         <div className="flex justify-center pt-1">
           <button className="btn-ghost" onClick={onLoadMore} disabled={loadingMore}>
             {loadingMore ? <Loader2 size={16} className="animate-spin" /> : null}

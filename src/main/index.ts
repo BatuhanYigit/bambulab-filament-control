@@ -6,7 +6,7 @@ import { readStudioProfiles, findStudioPath } from './studio'
 import { connectPrinter, connectCloud, disconnectPrinter, getAmsState, onAmsState, refreshPrinter } from './printer'
 import { discoverPrinters } from './discover'
 import { cloudLogin, cloudLoginCode, cloudTasks, cloudUid, cloudDevices } from './cloud'
-import { mwSearch, mwColors } from './makerworld'
+import { mwSearch, mwColors, mwSearchBrowser } from './makerworld'
 import { SEED_CATALOG } from '../shared/catalog'
 import type { AppData, PrinterSettings } from '../shared/types'
 
@@ -130,6 +130,7 @@ function registerIpc(): void {
     if (!cloud?.token) return { ok: false, error: 'Önce Bambu Cloud girişi yapın' }
     return mwColors(cloud.token, id)
   })
+  ipcMain.handle('mw:searchBrowser', (_e, keyword: string) => mwSearchBrowser(keyword))
 
   ipcMain.handle('app:openDataFolder', () => {
     shell.showItemInFolder(getDataFilePath())

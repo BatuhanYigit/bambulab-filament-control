@@ -54,7 +54,7 @@ const TR: Dict = {
   'mw.results': '{n} sonuç',
   'mw.searchBrowser': "MakerWorld'de ara",
   'mw.searchNote':
-    "Metin araması MakerWorld sitesinde açılır (site içi arama API'si dışarıdan çalışmıyor). Uygulama içinde Trending/Keşfet + renk filtresiyle keşfet.",
+    'Arama, MakerWorld’den yüklendiği için birkaç saniye sürebilir; sonuçlar yine renklerinle eşleştirilir.',
   'mw.colorFilter': 'Renk filtresi',
   'mw.colorFilterHint': 'Renk seç → yalnızca o renklerle yapılabilen modeller',
   'mw.clear': 'Temizle',
@@ -337,7 +337,7 @@ const EN: Dict = {
   'mw.results': '{n} results',
   'mw.searchBrowser': 'Search on MakerWorld',
   'mw.searchNote':
-    "Free-text search opens on MakerWorld (their in-site search API isn't available externally). Browse in-app with Trending/Discover + the color filter.",
+    'Search loads from MakerWorld so it may take a few seconds; results are still matched against your colors.',
   'mw.colorFilter': 'Color filter',
   'mw.colorFilterHint': 'Pick colors → only models printable with those',
   'mw.clear': 'Clear',

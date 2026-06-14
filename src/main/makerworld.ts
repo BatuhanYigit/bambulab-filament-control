@@ -1,3 +1,4 @@
+import { BrowserWindow } from 'electron'
 import type { MwModel, MwColor } from '../shared/types'
 
 // MakerWorld'ün resmi public API'si yok; web uygulamasının kullandığı uçlar
@@ -48,6 +49,86 @@ export async function mwSearch(
   } catch (e: any) {
     return { ok: false, error: String(e?.message ?? e) }
   }
+}
+
+const CHROME_UA =
+  'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36'
+
+/**
+ * Anahtar kelime araması: MakerWorld'ün arama API'si dışarıdan çalışmadığı için
+ * gizli bir gerçek tarayıcı penceresinde arama sayfasını yükleyip sonuç modellerini
+ * DOM'dan toplar. Sonra renkler detay API'sinden çekilip envanterle eşleştirilir.
+ */
+export function mwSearchBrowser(keyword: string): Promise<MwSearchResult> {
+  const term = keyword.trim()
+  if (!term) return Promise.resolve({ ok: true, models: [] })
+  return new Promise((resolve) => {
+    let done = false
+    const win = new BrowserWindow({
+      show: false,
+      width: 1366,
+      height: 1000,
+      webPreferences: { offscreen: false, sandbox: true, javascript: true }
+    })
+    const finish = (r: MwSearchResult): void => {
+      if (done) return
+      done = true
+      try {
+        win.destroy()
+      } catch {
+        /* yoksay */
+      }
+      resolve(r)
+    }
+    win.webContents.setUserAgent(CHROME_UA)
+
+    const scrape = `(() => {
+      const out = new Map();
+      document.querySelectorAll('a[href*="/models/"]').forEach((a) => {
+        const m = (a.getAttribute('href') || '').match(/\\/models\\/(\\d+)/);
+        if (!m) return;
+        const id = m[1];
+        if (out.has(id)) return;
+        const img = a.querySelector('img');
+        const title = (a.getAttribute('aria-label') || (img && img.getAttribute('alt')) || a.textContent || '').trim();
+        out.set(id, { id, title, cover: img ? img.src : '' });
+      });
+      return JSON.stringify([...out.values()].slice(0, 40));
+    })()`
+
+    win.webContents.on('did-finish-load', async () => {
+      for (let i = 0; i < 10; i++) {
+        await new Promise((r) => setTimeout(r, 1200))
+        if (done) return
+        try {
+          const json = await win.webContents.executeJavaScript(scrape, true)
+          const arr: any[] = JSON.parse(json)
+          if (arr.length > 0) {
+            const models: MwModel[] = arr.map((x) => ({
+              id: Number(x.id),
+              title: x.title || `Model ${x.id}`,
+              cover: x.cover || '',
+              creator: '',
+              likes: 0,
+              downloads: 0,
+              url: `https://makerworld.com/en/models/${x.id}`,
+              printable: true
+            }))
+            finish({ ok: true, models })
+            return
+          }
+        } catch {
+          /* sayfa henüz hazır değil */
+        }
+      }
+      finish({ ok: false, error: 'Arama sonucu yüklenemedi.' })
+    })
+
+    win.loadURL(`https://makerworld.com/en/models/search?keyword=${encodeURIComponent(term)}`).catch((e) =>
+      finish({ ok: false, error: String(e?.message ?? e) })
+    )
+    setTimeout(() => finish({ ok: false, error: 'Arama zaman aşımına uğradı.' }), 28000)
+  })
 }
 
 /** Bir modelin varsayılan profilindeki gerekli renkleri (hex) çek. */
