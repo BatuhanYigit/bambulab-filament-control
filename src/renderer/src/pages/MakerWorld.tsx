@@ -44,6 +44,9 @@ export function MakerWorld(): React.JSX.Element {
   const [maxColors, setMaxColors] = useState(0) // 0 = any
   const [sort, setSort] = useState<Sort>('match')
   const [onlyBuildable, setOnlyBuildable] = useState(false)
+  const [selectedColors, setSelectedColors] = useState<string[]>([])
+  const toggleColor = (hex: string): void =>
+    setSelectedColors((p) => (p.includes(hex) ? p.filter((x) => x !== hex) : [...p, hex]))
 
   const sourceRef = useRef<Source>({ navKey: 'Trending' })
   const nextOffsetRef = useRef(0)
@@ -53,6 +56,7 @@ export function MakerWorld(): React.JSX.Element {
     () => data.spools.filter((s) => !s.archived && s.remainingG > 0).map((s) => s.colorHex),
     [data.spools]
   )
+  const invUnique = useMemo(() => Array.from(new Set(invColors.map((c) => c.toUpperCase()))), [invColors])
   const matched = (hex: string): boolean => invColors.some((c) => dist(c, hex) < tolerance)
 
   const colorsOf = (id: number): ColorState | undefined => colorsMap[id]
@@ -125,8 +129,11 @@ export function MakerWorld(): React.JSX.Element {
     loadColors(fresh, runId)
   }
 
+  // MakerWorld'ün metin arama API'si dışarıdan çalışmadığı için aramayı tarayıcıda aç
   const onSearch = (): void => {
-    void fetchPage(q.trim() ? { q: q.trim() } : { navKey: 'Trending' }, 0, false)
+    const term = q.trim()
+    if (!term) return
+    window.open(`https://makerworld.com/en/models/search?keyword=${encodeURIComponent(term)}`, '_blank')
   }
   const onTrending = (): void => {
     setQ('')
@@ -159,6 +166,14 @@ export function MakerWorld(): React.JSX.Element {
       })
     }
     if (onlyBuildable) list = list.filter((m) => buildableOf(m.id) === true)
+    // Renk filtresi: sadece seçilen renklerle yapılabilen modeller
+    if (selectedColors.length > 0) {
+      list = list.filter((m) => {
+        const cm = colorsMap[m.id]
+        if (!cm || cm.loading || cm.colors.length === 0) return false
+        return cm.colors.every((c) => selectedColors.some((sc) => dist(sc, c.color) < tolerance))
+      })
+    }
     const rank = (id: number): number => {
       const b = buildableOf(id)
       if (b === true) return 0
@@ -179,7 +194,7 @@ export function MakerWorld(): React.JSX.Element {
     })
     return list
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [models, colorsMap, maxColors, onlyBuildable, sort, tolerance, invColors])
+  }, [models, colorsMap, maxColors, onlyBuildable, sort, tolerance, invColors, selectedColors])
 
   return (
     <div className="space-y-4">
@@ -197,8 +212,8 @@ export function MakerWorld(): React.JSX.Element {
             onKeyDown={(e) => e.key === 'Enter' && onSearch()}
           />
         </div>
-        <button className="btn-primary" onClick={onSearch} disabled={loading || !cloud?.token}>
-          <Search size={16} /> {t('common.search')}
+        <button className="btn-primary" onClick={onSearch} disabled={!q.trim()}>
+          <ExternalLink size={16} /> {t('mw.searchBrowser')}
         </button>
         <button className="btn-ghost" onClick={onTrending} disabled={loading || !cloud?.token}>
           <Compass size={16} /> {t('mw.trending')}
@@ -207,6 +222,7 @@ export function MakerWorld(): React.JSX.Element {
           <Shuffle size={16} /> {t('mw.discover')}
         </button>
       </div>
+      <p className="text-[11px] text-gray-600 -mt-2">{t('mw.searchNote')}</p>
 
       {/* Advanced filters */}
       <div className="card p-3 flex items-center gap-5 flex-wrap text-sm">
@@ -267,6 +283,38 @@ export function MakerWorld(): React.JSX.Element {
         <div className="flex-1" />
         <span className="text-xs text-gray-500">{t('mw.results', { n: visible.length })}</span>
       </div>
+
+      {/* Color filter — pick from your inventory colors */}
+      {invUnique.length > 0 && (
+        <div className="flex items-center gap-2 flex-wrap">
+          <span className="text-xs text-gray-400">{t('mw.colorFilter')}:</span>
+          {invUnique.map((hex) => {
+            const on = selectedColors.includes(hex)
+            return (
+              <button
+                key={hex}
+                onClick={() => toggleColor(hex)}
+                title={hex}
+                className="rounded-md transition-transform hover:scale-110"
+                style={{
+                  width: 22,
+                  height: 22,
+                  background: hex,
+                  border: needsBorder(hex) ? '1px solid #3a4347' : '1px solid rgba(0,0,0,0.25)',
+                  outline: on ? '2px solid #00ae42' : 'none',
+                  outlineOffset: 2
+                }}
+              />
+            )
+          })}
+          {selectedColors.length > 0 && (
+            <button className="text-xs text-gray-500 hover:text-gray-300 ml-1" onClick={() => setSelectedColors([])}>
+              {t('mw.clear')}
+            </button>
+          )}
+          <span className="text-[11px] text-gray-600 ml-1">{t('mw.colorFilterHint')}</span>
+        </div>
+      )}
 
       {error && <p className="text-sm text-accent-amber">{error}</p>}
 

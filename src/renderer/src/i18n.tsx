@@ -52,6 +52,12 @@ const TR: Dict = {
   'mw.any': 'Hepsi',
   'mw.loadMore': 'Daha fazla yükle',
   'mw.results': '{n} sonuç',
+  'mw.searchBrowser': "MakerWorld'de ara",
+  'mw.searchNote':
+    "Metin araması MakerWorld sitesinde açılır (site içi arama API'si dışarıdan çalışmıyor). Uygulama içinde Trending/Keşfet + renk filtresiyle keşfet.",
+  'mw.colorFilter': 'Renk filtresi',
+  'mw.colorFilterHint': 'Renk seç → yalnızca o renklerle yapılabilen modeller',
+  'mw.clear': 'Temizle',
 
   'common.cancel': 'İptal',
   'common.save': 'Kaydet',
@@ -329,6 +335,12 @@ const EN: Dict = {
   'mw.any': 'Any',
   'mw.loadMore': 'Load more',
   'mw.results': '{n} results',
+  'mw.searchBrowser': 'Search on MakerWorld',
+  'mw.searchNote':
+    "Free-text search opens on MakerWorld (their in-site search API isn't available externally). Browse in-app with Trending/Discover + the color filter.",
+  'mw.colorFilter': 'Color filter',
+  'mw.colorFilterHint': 'Pick colors → only models printable with those',
+  'mw.clear': 'Clear',
 
   'common.cancel': 'Cancel',
   'common.save': 'Save',
