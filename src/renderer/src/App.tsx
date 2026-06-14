@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { LayoutDashboard, Boxes, Palette, History, Settings as SettingsIcon, Wifi, WifiOff } from 'lucide-react'
+import { LayoutDashboard, Boxes, Palette, Compass, History, Settings as SettingsIcon, Wifi, WifiOff } from 'lucide-react'
 import { useData } from './state'
 import { useI18n } from './i18n'
 import { Dashboard } from './pages/Dashboard'
@@ -7,14 +7,16 @@ import { Inventory } from './pages/Inventory'
 import { Catalog } from './pages/Catalog'
 import { PrintLog } from './pages/PrintLog'
 import { Settings } from './pages/Settings'
+import { MakerWorld } from './pages/MakerWorld'
 import { Tour } from './components/Tour'
 
-type Page = 'panel' | 'envanter' | 'katalog' | 'gecmis' | 'ayarlar'
+type Page = 'panel' | 'envanter' | 'katalog' | 'makerworld' | 'gecmis' | 'ayarlar'
 
 const NAV: { id: Page; key: string; titleKey: string; icon: React.ElementType }[] = [
   { id: 'panel', key: 'nav.dashboard', titleKey: 'title.dashboard', icon: LayoutDashboard },
   { id: 'envanter', key: 'nav.inventory', titleKey: 'title.inventory', icon: Boxes },
   { id: 'katalog', key: 'nav.catalog', titleKey: 'title.catalog', icon: Palette },
+  { id: 'makerworld', key: 'nav.makerworld', titleKey: 'title.makerworld', icon: Compass },
   { id: 'gecmis', key: 'nav.history', titleKey: 'title.history', icon: History },
   { id: 'ayarlar', key: 'nav.settings', titleKey: 'title.settings', icon: SettingsIcon }
 ]
@@ -94,6 +96,7 @@ export default function App(): React.JSX.Element {
           {page === 'panel' && <Dashboard />}
           {page === 'envanter' && <Inventory />}
           {page === 'katalog' && <Catalog />}
+          {page === 'makerworld' && <MakerWorld />}
           {page === 'gecmis' && <PrintLog />}
           {page === 'ayarlar' && <Settings />}
         </div>

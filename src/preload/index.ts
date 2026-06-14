@@ -7,7 +7,9 @@ import type {
   StudioProfile,
   DiscoveredPrinter,
   CloudTask,
-  BoundDevice
+  BoundDevice,
+  MwModel,
+  MwColor
 } from '../shared/types'
 
 interface LoginResult {
@@ -51,6 +53,16 @@ const api = {
     ipcRenderer.invoke('cloud:loginCode', account, code, region),
   cloudTasks: (token: string, region: 'global' | 'china'): Promise<TasksResult> =>
     ipcRenderer.invoke('cloud:tasks', token, region),
+
+  mwSearch: (opts: {
+    q?: string
+    navKey?: string
+    offset?: number
+    limit?: number
+  }): Promise<{ ok: boolean; models?: MwModel[]; total?: number; expired?: boolean; error?: string }> =>
+    ipcRenderer.invoke('mw:search', opts),
+  mwColors: (id: number): Promise<{ ok: boolean; colors?: MwColor[]; error?: string }> =>
+    ipcRenderer.invoke('mw:colors', id),
 
   openDataFolder: (): Promise<boolean> => ipcRenderer.invoke('app:openDataFolder'),
 

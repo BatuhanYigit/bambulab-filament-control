@@ -6,6 +6,7 @@ import { readStudioProfiles, findStudioPath } from './studio'
 import { connectPrinter, connectCloud, disconnectPrinter, getAmsState, onAmsState, refreshPrinter } from './printer'
 import { discoverPrinters } from './discover'
 import { cloudLogin, cloudLoginCode, cloudTasks, cloudUid, cloudDevices } from './cloud'
+import { mwSearch, mwColors } from './makerworld'
 import { SEED_CATALOG } from '../shared/catalog'
 import type { AppData, PrinterSettings } from '../shared/types'
 
@@ -117,6 +118,18 @@ function registerIpc(): void {
     cloudLoginCode(account, code, region)
   )
   ipcMain.handle('cloud:tasks', (_e, token: string, region: 'global' | 'china') => cloudTasks(token, region))
+
+  // MakerWorld (renk uyumlu proje bulucu) — stored cloud token kullanır
+  ipcMain.handle('mw:search', (_e, opts: { q?: string; navKey?: string; offset?: number; limit?: number }) => {
+    const { cloud } = loadData().settings
+    if (!cloud?.token) return { ok: false, error: 'Önce Bambu Cloud girişi yapın' }
+    return mwSearch(cloud.token, opts)
+  })
+  ipcMain.handle('mw:colors', (_e, id: number) => {
+    const { cloud } = loadData().settings
+    if (!cloud?.token) return { ok: false, error: 'Önce Bambu Cloud girişi yapın' }
+    return mwColors(cloud.token, id)
+  })
 
   ipcMain.handle('app:openDataFolder', () => {
     shell.showItemInFolder(getDataFilePath())

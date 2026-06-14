@@ -122,6 +122,24 @@ export interface PrinterSettings {
   mode?: 'lan' | 'cloud'
 }
 
+/** MakerWorld model arama sonucu */
+export interface MwModel {
+  id: number
+  title: string
+  cover: string
+  creator: string
+  likes: number
+  downloads: number
+  url: string
+  printable: boolean
+}
+
+/** Bir modelin gerektirdiği filament rengi */
+export interface MwColor {
+  color: string
+  type?: string
+}
+
 /** Bambu Cloud'a bağlı cihaz (yazıcı) */
 export interface BoundDevice {
   serial: string

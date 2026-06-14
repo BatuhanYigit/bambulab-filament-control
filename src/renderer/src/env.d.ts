@@ -7,7 +7,9 @@ import type {
   StudioProfile,
   DiscoveredPrinter,
   CloudTask,
-  BoundDevice
+  BoundDevice,
+  MwModel,
+  MwColor
 } from '../../shared/types'
 
 interface CloudLoginResult {
@@ -42,6 +44,13 @@ export interface RendererApi {
   cloudLogin: (account: string, password: string, region: 'global' | 'china') => Promise<CloudLoginResult>
   cloudLoginCode: (account: string, code: string, region: 'global' | 'china') => Promise<CloudLoginResult>
   cloudTasks: (token: string, region: 'global' | 'china') => Promise<CloudTasksResult>
+  mwSearch: (opts: {
+    q?: string
+    navKey?: string
+    offset?: number
+    limit?: number
+  }) => Promise<{ ok: boolean; models?: MwModel[]; total?: number; expired?: boolean; error?: string }>
+  mwColors: (id: number) => Promise<{ ok: boolean; colors?: MwColor[]; error?: string }>
   openDataFolder: () => Promise<boolean>
   onAmsState: (cb: (state: AmsState) => void) => () => void
 }

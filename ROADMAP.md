@@ -43,14 +43,16 @@ A big, comprehensive feature for a later phase (planning only for now).
 already own. Example: you have yellow, black, white and red → the app surfaces the
 "Pikachu" model. Browse/search MakerWorld and filter results by your inventory colors.
 
-- [ ] Search MakerWorld by keyword / tags and show results in-app (thumbnail, title,
+- [x] Search MakerWorld by keyword and browse Trending; show results in-app (cover, title,
       designer, like/download counts)
-- [ ] **Match by owned colors** — given the colors in your inventory, rank models whose
-      required color slots are covered by what you have (exact + close-color matching)
-- [ ] Filter: multi-color (AMS) models **and** single-color / no-AMS models
+- [x] **Match by owned colors** — each model's required colors (from its default profile)
+      are matched against your inventory (close-color RGB matching)
+- [x] Both multi-color and single-color models are matched
+- [x] "What can I print right now?" filter — only models fully buildable with current stock
+- [x] Open the model on MakerWorld
 - [ ] Filter by material/type, plate count, difficulty, license
-- [ ] "What can I print right now?" view — only models fully buildable with current stock
-- [ ] Open the model on MakerWorld / send to slicer
+- [ ] Send selected model straight to the slicer
+- [ ] Paginate / load more results
 
 **Open questions / risks to investigate:**
 - MakerWorld has no official public API — needs an unofficial endpoint or scraping;
