@@ -6,7 +6,8 @@ import type {
   PrinterSettings,
   StudioProfile,
   DiscoveredPrinter,
-  CloudTask
+  CloudTask,
+  BoundDevice
 } from '../shared/types'
 
 interface LoginResult {
@@ -36,6 +37,10 @@ const api = {
   scanPrinters: (): Promise<DiscoveredPrinter[]> => ipcRenderer.invoke('printer:scan'),
   connectPrinter: (settings: PrinterSettings): Promise<{ ok: boolean; error?: string }> =>
     ipcRenderer.invoke('printer:connect', settings),
+  connectCloud: (serial: string): Promise<{ ok: boolean; error?: string }> =>
+    ipcRenderer.invoke('printer:connectCloud', serial),
+  cloudDevices: (): Promise<{ ok: boolean; devices?: BoundDevice[]; expired?: boolean; error?: string }> =>
+    ipcRenderer.invoke('printer:cloudDevices'),
   disconnectPrinter: (): Promise<boolean> => ipcRenderer.invoke('printer:disconnect'),
   getPrinterState: (): Promise<AmsState> => ipcRenderer.invoke('printer:state'),
   refreshPrinter: (): Promise<boolean> => ipcRenderer.invoke('printer:refresh'),

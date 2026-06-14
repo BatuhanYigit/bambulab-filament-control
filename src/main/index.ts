@@ -3,9 +3,9 @@ import { join } from 'path'
 import { writeFileSync, mkdirSync } from 'fs'
 import { loadData, saveData, getDataFilePath } from './store'
 import { readStudioProfiles, findStudioPath } from './studio'
-import { connectPrinter, disconnectPrinter, getAmsState, onAmsState, refreshPrinter } from './printer'
+import { connectPrinter, connectCloud, disconnectPrinter, getAmsState, onAmsState, refreshPrinter } from './printer'
 import { discoverPrinters } from './discover'
-import { cloudLogin, cloudLoginCode, cloudTasks } from './cloud'
+import { cloudLogin, cloudLoginCode, cloudTasks, cloudUid, cloudDevices } from './cloud'
 import { SEED_CATALOG } from '../shared/catalog'
 import type { AppData, PrinterSettings } from '../shared/types'
 
@@ -83,6 +83,23 @@ function registerIpc(): void {
 
   ipcMain.handle('printer:scan', () => discoverPrinters())
   ipcMain.handle('printer:connect', (_e, settings: PrinterSettings) => connectPrinter(settings))
+
+  // Bambu Cloud üzerinden bağlan (herhangi bir ağdan; LAN gerekmez)
+  ipcMain.handle('printer:connectCloud', async (_e, serial: string) => {
+    const { cloud } = loadData().settings
+    if (!cloud?.token) return { ok: false, error: 'Önce Bambu Cloud girişi yapın' }
+    if (!serial) return { ok: false, error: 'Yazıcı seçilmedi' }
+    const uidRes = await cloudUid(cloud.token, cloud.region)
+    if (!uidRes.ok || !uidRes.uid) return { ok: false, error: uidRes.error ?? 'Kullanıcı kimliği alınamadı' }
+    return connectCloud({ serial, uid: uidRes.uid, token: cloud.token, region: cloud.region })
+  })
+
+  // Bambu Cloud'a bağlı yazıcıları listele
+  ipcMain.handle('printer:cloudDevices', () => {
+    const { cloud } = loadData().settings
+    if (!cloud?.token) return { ok: false, error: 'Önce Bambu Cloud girişi yapın' }
+    return cloudDevices(cloud.token, cloud.region)
+  })
   ipcMain.handle('printer:disconnect', () => {
     disconnectPrinter()
     return true
@@ -159,10 +176,17 @@ app.whenReady().then(() => {
     })
   }
 
-  // ayarlarda otomatik bağlan açıksa yazıcıya bağlan
+  // ayarlarda otomatik bağlan açıksa yazıcıya bağlan (LAN veya Cloud)
   const data = loadData()
-  if (data.settings.printer.autoConnect && data.settings.printer.ip) {
-    connectPrinter(data.settings.printer)
+  const pr = data.settings.printer
+  if (pr.autoConnect) {
+    if (pr.mode === 'cloud' && data.settings.cloud?.token && pr.serial) {
+      cloudUid(data.settings.cloud.token, data.settings.cloud.region).then((u) => {
+        if (u.ok && u.uid) connectCloud({ serial: pr.serial, uid: u.uid, token: data.settings.cloud!.token, region: data.settings.cloud!.region })
+      })
+    } else if (pr.ip) {
+      connectPrinter(pr)
+    }
   }
 
   app.on('activate', () => {

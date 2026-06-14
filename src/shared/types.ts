@@ -118,6 +118,15 @@ export interface PrinterSettings {
   serial: string
   accessCode: string
   autoConnect: boolean
+  /** Bağlantı modu: yerel ağ (LAN) veya Bambu Cloud (her yerden) */
+  mode?: 'lan' | 'cloud'
+}
+
+/** Bambu Cloud'a bağlı cihaz (yazıcı) */
+export interface BoundDevice {
+  serial: string
+  name: string
+  online: boolean
 }
 
 export interface AppSettings {

@@ -33,6 +33,11 @@ export function Settings(): React.JSX.Element {
   const [discovering, setDiscovering] = useState(false)
   const [found, setFound] = useState<DiscoveredPrinter[] | null>(null)
 
+  const mode = printer.mode ?? 'lan'
+  const setMode = (m: 'lan' | 'cloud'): void => updateSettings({ printer: { ...printer, mode: m } })
+  const [devices, setDevices] = useState<import('../../../shared/types').BoundDevice[] | null>(null)
+  const [devBusy, setDevBusy] = useState(false)
+
   const cloud = data.settings.cloud
   const [cAccount, setCAccount] = useState(cloud?.account ?? '')
   const [cPassword, setCPassword] = useState('')
@@ -86,6 +91,25 @@ export function Settings(): React.JSX.Element {
     setIp(p.ip)
     if (p.serial) setSerial(p.serial)
     setFound(null)
+  }
+
+  const loadDevices = async (): Promise<void> => {
+    setDevBusy(true)
+    setDevices(null)
+    setConnResult(null)
+    const res = await window.api.cloudDevices()
+    setDevBusy(false)
+    if (res.ok && res.devices) setDevices(res.devices)
+    else setConnResult({ ok: false, error: res.error ?? t('set.noDevices') })
+  }
+
+  const connectCloudDevice = async (serialId: string): Promise<void> => {
+    updateSettings({ printer: { ...printer, serial: serialId, mode: 'cloud' } })
+    setConnecting(true)
+    setConnResult(null)
+    const res = await window.api.connectCloud(serialId)
+    setConnResult(res)
+    setConnecting(false)
   }
 
   const doCloudLogin = async (): Promise<void> => {
@@ -163,6 +187,69 @@ export function Settings(): React.JSX.Element {
           </span>
         </div>
 
+        {/* Connection mode */}
+        <div className="flex items-center gap-3 mb-4">
+          <span className="text-sm text-gray-400">{t('set.connMode')}:</span>
+          <div className="flex gap-1 bg-ink-800 rounded-xl p-1">
+            {(['lan', 'cloud'] as const).map((m) => (
+              <button
+                key={m}
+                onClick={() => setMode(m)}
+                className={`px-3 py-1.5 rounded-lg text-xs font-medium ${
+                  mode === m ? 'bg-bambu text-black' : 'text-gray-400 hover:text-gray-200'
+                }`}
+              >
+                {m === 'lan' ? t('set.modeLan') : t('set.modeCloud')}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {mode === 'cloud' && (
+          <div className="mb-4 rounded-xl border border-ink-700/60 bg-ink-900/40 p-3">
+            <p className="text-xs text-gray-400 mb-3">{t('set.cloudConnInfo')}</p>
+            {!cloud?.token ? (
+              <p className="text-sm text-accent-amber">{t('set.noCloudLogin')}</p>
+            ) : (
+              <>
+                <button className="btn-primary py-1.5" onClick={loadDevices} disabled={devBusy}>
+                  {devBusy ? <Loader2 size={15} className="animate-spin" /> : <Cloud size={15} />}
+                  {t('set.loadDevices')}
+                </button>
+                {devices && (
+                  <div className="mt-3 space-y-1.5">
+                    {devices.length === 0 ? (
+                      <p className="text-xs text-gray-500">{t('set.noDevices')}</p>
+                    ) : (
+                      devices.map((d) => (
+                        <div key={d.serial} className="w-full flex items-center gap-3 rounded-lg bg-ink-800 px-3 py-2">
+                          <Printer size={16} className="text-bambu shrink-0" />
+                          <div className="flex-1 min-w-0">
+                            <div className="text-sm text-gray-100 truncate">{d.name}</div>
+                            <div className="text-xs text-gray-500" data-redact>{d.serial}</div>
+                          </div>
+                          <span className={`chip py-0.5 shrink-0 ${d.online ? 'text-bambu' : 'text-gray-500'}`}>
+                            {d.online ? t('set.online') : t('set.offline')}
+                          </span>
+                          <button
+                            className="btn-primary py-1 px-3"
+                            disabled={connecting}
+                            onClick={() => connectCloudDevice(d.serial)}
+                          >
+                            {t('set.connect')}
+                          </button>
+                        </div>
+                      ))
+                    )}
+                  </div>
+                )}
+              </>
+            )}
+          </div>
+        )}
+
+        {mode === 'lan' && (
+          <>
         {/* Network scanner */}
         <div className="mb-4 rounded-xl border border-ink-700/60 bg-ink-900/40 p-3">
           <div className="flex items-center justify-between">
@@ -237,6 +324,8 @@ export function Settings(): React.JSX.Element {
           <input data-redact className="input" value={code} onChange={(e) => setCode(e.target.value)} />
           <p className="text-xs text-gray-500 mt-1.5">{t('set.accessHint')}</p>
         </div>
+          </>
+        )}
 
         <label className="flex items-center gap-2 mt-4 text-sm text-gray-300 cursor-pointer">
           <input
@@ -275,10 +364,12 @@ export function Settings(): React.JSX.Element {
         </label>
 
         <div className="flex items-center gap-2 mt-4">
-          <button className="btn-primary" onClick={saveAndConnect} disabled={connecting}>
-            {connecting ? <Loader2 size={16} className="animate-spin" /> : <Wifi size={16} />}
-            {t('set.saveConnect')}
-          </button>
+          {mode === 'lan' && (
+            <button className="btn-primary" onClick={saveAndConnect} disabled={connecting}>
+              {connecting ? <Loader2 size={16} className="animate-spin" /> : <Wifi size={16} />}
+              {t('set.saveConnect')}
+            </button>
+          )}
           {ams.connected && (
             <button className="btn-ghost" onClick={disconnect}>
               {t('set.disconnect')}

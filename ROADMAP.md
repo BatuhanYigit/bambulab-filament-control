@@ -30,10 +30,10 @@ issue or a discussion. Checked items are done.
 - [ ] Multi-AMS / AMS Lite: show more than one unit on the dashboard
 - [ ] Spool weight via scale (tare = empty spool weight → grams from measured weight)
 - [ ] Drying reminders / humidity tracking
-- [ ] **LAN-only vs phone control** — In LAN-only mode the Bambu Handy app / cloud
-      control stops working. Find a workaround so local monitoring in this app and
-      phone/cloud control can coexist (investigate cloud-MQTT access, dual-mode, or
-      at least document the trade-off and guide the user).
+- [x] **LAN-only vs phone control** — solved: added a **Bambu Cloud connection mode**.
+      The app can now connect through Bambu's cloud MQTT broker using your account token,
+      so it works from any network without forcing the printer into LAN-only mode (no more
+      losing phone/cloud control). LAN mode is still available as an option.
 
 ## 🧩 Planned (large) — MakerWorld project finder
 

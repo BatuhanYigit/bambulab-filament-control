@@ -100,22 +100,24 @@ function parseReport(payload: any): void {
   }
 }
 
-export function connectPrinter(settings: PrinterSettings): Promise<{ ok: boolean; error?: string }> {
-  currentSettings = settings
-  return new Promise((resolve) => {
-    if (!settings.ip || !settings.accessCode || !settings.serial) {
-      resolve({ ok: false, error: 'IP, seri no ve access code gerekli' })
-      return
-    }
-    disconnectPrinter()
+let currentSerial: string | null = null
 
-    const url = `mqtts://${settings.ip}:8883`
+/** LAN ve Cloud için ortak MQTT bağlantısı kurar. */
+function startMqtt(opts: {
+  url: string
+  username: string
+  password: string
+  serial: string
+}): Promise<{ ok: boolean; error?: string }> {
+  return new Promise((resolve) => {
+    disconnectPrinter()
+    currentSerial = opts.serial
     let settled = false
 
     try {
-      client = mqtt.connect(url, {
-        username: 'bblp',
-        password: settings.accessCode,
+      client = mqtt.connect(opts.url, {
+        username: opts.username,
+        password: opts.password,
         reconnectPeriod: 5000,
         connectTimeout: 8000,
         rejectUnauthorized: false,
@@ -126,12 +128,11 @@ export function connectPrinter(settings: PrinterSettings): Promise<{ ok: boolean
       return
     }
 
-    const reportTopic = `device/${settings.serial}/report`
-    const requestTopic = `device/${settings.serial}/request`
+    const reportTopic = `device/${opts.serial}/report`
+    const requestTopic = `device/${opts.serial}/request`
 
     client.on('connect', () => {
       client?.subscribe(reportTopic, () => {
-        // tam durumu çek
         client?.publish(requestTopic, JSON.stringify({ pushing: { sequence_id: '0', command: 'pushall' } }))
       })
       emit({ connected: true, error: undefined })
@@ -161,13 +162,45 @@ export function connectPrinter(settings: PrinterSettings): Promise<{ ok: boolean
       emit({ connected: false })
     })
 
-    // güvenlik zaman aşımı
     setTimeout(() => {
       if (!settled) {
         settled = true
         resolve({ ok: false, error: 'Bağlantı zaman aşımına uğradı' })
       }
     }, 9000)
+  })
+}
+
+/** Yerel ağ (LAN) bağlantısı: aynı ağda, access code ile. */
+export function connectPrinter(settings: PrinterSettings): Promise<{ ok: boolean; error?: string }> {
+  currentSettings = settings
+  if (!settings.ip || !settings.accessCode || !settings.serial) {
+    return Promise.resolve({ ok: false, error: 'IP, seri no ve access code gerekli' })
+  }
+  return startMqtt({
+    url: `mqtts://${settings.ip}:8883`,
+    username: 'bblp',
+    password: settings.accessCode,
+    serial: settings.serial
+  })
+}
+
+/** Bambu Cloud bağlantısı: herhangi bir ağdan, hesap token'ı ile. */
+export function connectCloud(opts: {
+  serial: string
+  uid: number
+  token: string
+  region: 'global' | 'china'
+}): Promise<{ ok: boolean; error?: string }> {
+  if (!opts.serial || !opts.uid || !opts.token) {
+    return Promise.resolve({ ok: false, error: 'Cloud bağlantısı için giriş ve cihaz gerekli' })
+  }
+  const host = opts.region === 'china' ? 'cn.mqtt.bambulab.com' : 'us.mqtt.bambulab.com'
+  return startMqtt({
+    url: `mqtts://${host}:8883`,
+    username: `u_${opts.uid}`,
+    password: opts.token,
+    serial: opts.serial
   })
 }
 
@@ -184,9 +217,9 @@ export function disconnectPrinter(): void {
 }
 
 export function refreshPrinter(): void {
-  if (client && currentSettings) {
+  if (client && currentSerial) {
     client.publish(
-      `device/${currentSettings.serial}/request`,
+      `device/${currentSerial}/request`,
       JSON.stringify({ pushing: { sequence_id: '0', command: 'pushall' } })
     )
   }

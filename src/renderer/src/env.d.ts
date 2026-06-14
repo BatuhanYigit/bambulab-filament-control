@@ -6,7 +6,8 @@ import type {
   PrinterSettings,
   StudioProfile,
   DiscoveredPrinter,
-  CloudTask
+  CloudTask,
+  BoundDevice
 } from '../../shared/types'
 
 interface CloudLoginResult {
@@ -32,6 +33,9 @@ export interface RendererApi {
   pickStudioPath: () => Promise<string | null>
   scanPrinters: () => Promise<DiscoveredPrinter[]>
   connectPrinter: (settings: PrinterSettings) => Promise<{ ok: boolean; error?: string }>
+  connectCloud: (serial: string) => Promise<{ ok: boolean; error?: string }>
+  cloudDevices: () => Promise<{ ok: boolean; devices?: BoundDevice[]; expired?: boolean; error?: string }>
+
   disconnectPrinter: () => Promise<boolean>
   getPrinterState: () => Promise<AmsState>
   refreshPrinter: () => Promise<boolean>
