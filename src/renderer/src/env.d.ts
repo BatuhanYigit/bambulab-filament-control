@@ -51,7 +51,10 @@ export interface RendererApi {
     limit?: number
   }) => Promise<{ ok: boolean; models?: MwModel[]; total?: number; expired?: boolean; error?: string }>
   mwColors: (id: number) => Promise<{ ok: boolean; colors?: MwColor[]; error?: string }>
-  mwSearchBrowser: (keyword: string) => Promise<{ ok: boolean; models?: MwModel[]; error?: string }>
+  mwSearchBrowser: (
+    keyword: string,
+    scrolls?: number
+  ) => Promise<{ ok: boolean; models?: MwModel[]; error?: string }>
   openDataFolder: () => Promise<boolean>
   onAmsState: (cb: (state: AmsState) => void) => () => void
 }

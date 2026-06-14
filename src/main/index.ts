@@ -130,7 +130,7 @@ function registerIpc(): void {
     if (!cloud?.token) return { ok: false, error: 'Önce Bambu Cloud girişi yapın' }
     return mwColors(cloud.token, id)
   })
-  ipcMain.handle('mw:searchBrowser', (_e, keyword: string) => mwSearchBrowser(keyword))
+  ipcMain.handle('mw:searchBrowser', (_e, keyword: string, scrolls?: number) => mwSearchBrowser(keyword, scrolls))
 
   ipcMain.handle('app:openDataFolder', () => {
     shell.showItemInFolder(getDataFilePath())

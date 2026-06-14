@@ -59,7 +59,7 @@ const CHROME_UA =
  * gizli bir gerçek tarayıcı penceresinde arama sayfasını yükleyip sonuç modellerini
  * DOM'dan toplar. Sonra renkler detay API'sinden çekilip envanterle eşleştirilir.
  */
-export function mwSearchBrowser(keyword: string): Promise<MwSearchResult> {
+export function mwSearchBrowser(keyword: string, scrolls = 2): Promise<MwSearchResult> {
   const term = keyword.trim()
   if (!term) return Promise.resolve({ ok: true, models: [] })
   return new Promise((resolve) => {
@@ -96,38 +96,60 @@ export function mwSearchBrowser(keyword: string): Promise<MwSearchResult> {
       return JSON.stringify([...out.values()].slice(0, 40));
     })()`
 
+    const collect = async (): Promise<MwModel[]> => {
+      const json = await win.webContents.executeJavaScript(scrape, true)
+      const arr: any[] = JSON.parse(json)
+      return arr.map((x) => ({
+        id: Number(x.id),
+        title: x.title || `Model ${x.id}`,
+        cover: x.cover || '',
+        creator: '',
+        likes: 0,
+        downloads: 0,
+        url: `https://makerworld.com/en/models/${x.id}`,
+        printable: true
+      }))
+    }
+
     win.webContents.on('did-finish-load', async () => {
-      for (let i = 0; i < 10; i++) {
+      // önce ilk sonuçların render olmasını bekle
+      let ready = false
+      for (let i = 0; i < 10 && !done; i++) {
         await new Promise((r) => setTimeout(r, 1200))
-        if (done) return
         try {
-          const json = await win.webContents.executeJavaScript(scrape, true)
-          const arr: any[] = JSON.parse(json)
-          if (arr.length > 0) {
-            const models: MwModel[] = arr.map((x) => ({
-              id: Number(x.id),
-              title: x.title || `Model ${x.id}`,
-              cover: x.cover || '',
-              creator: '',
-              likes: 0,
-              downloads: 0,
-              url: `https://makerworld.com/en/models/${x.id}`,
-              printable: true
-            }))
-            finish({ ok: true, models })
-            return
+          if ((await collect()).length > 0) {
+            ready = true
+            break
           }
         } catch {
-          /* sayfa henüz hazır değil */
+          /* henüz hazır değil */
         }
       }
-      finish({ ok: false, error: 'Arama sonucu yüklenemedi.' })
+      if (done) return
+      if (!ready) {
+        finish({ ok: false, error: 'Arama sonucu yüklenemedi.' })
+        return
+      }
+      // sonsuz kaydırmayı tetikleyerek daha fazla sonuç yükle
+      for (let s = 0; s < scrolls && !done; s++) {
+        try {
+          await win.webContents.executeJavaScript('window.scrollTo(0, document.body.scrollHeight)', true)
+        } catch {
+          /* yoksay */
+        }
+        await new Promise((r) => setTimeout(r, 1700))
+      }
+      try {
+        finish({ ok: true, models: await collect() })
+      } catch (e: any) {
+        finish({ ok: false, error: String(e?.message ?? e) })
+      }
     })
 
     win.loadURL(`https://makerworld.com/en/models/search?keyword=${encodeURIComponent(term)}`).catch((e) =>
       finish({ ok: false, error: String(e?.message ?? e) })
     )
-    setTimeout(() => finish({ ok: false, error: 'Arama zaman aşımına uğradı.' }), 28000)
+    setTimeout(() => finish({ ok: false, error: 'Arama zaman aşımına uğradı.' }), 22000 + scrolls * 2500)
   })
 }
 

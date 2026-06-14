@@ -52,6 +52,8 @@ export function MakerWorld(): React.JSX.Element {
   const sourceRef = useRef<Source>({ navKey: 'Trending' })
   const nextOffsetRef = useRef(0)
   const runIdRef = useRef(0)
+  const searchTermRef = useRef('')
+  const searchScrollsRef = useRef(2)
 
   const invColors = useMemo(
     () => data.spools.filter((s) => !s.archived && s.remainingG > 0).map((s) => s.colorHex),
@@ -131,31 +133,50 @@ export function MakerWorld(): React.JSX.Element {
     loadColors(fresh, runId)
   }
 
-  // Anahtar kelime araması: gizli tarayıcı penceresiyle (sonuçlar yine renklerinle eşleşir)
-  const runSearch = async (): Promise<void> => {
-    const term = q.trim()
+  // Anahtar kelime araması: gizli tarayıcı penceresiyle (sonuçlar yine renklerinle eşleşir).
+  // "Daha fazla yükle" daha çok kaydırarak (scrolls) daha çok sonuç getirir.
+  const runSearch = async (scrolls: number, append: boolean): Promise<void> => {
+    const term = append ? searchTermRef.current : q.trim()
     if (!term) return
-    setLoading(true)
-    setModels([])
-    setColorsMap({})
-    setError(null)
-    setIsSearch(true)
+    searchTermRef.current = term
+    searchScrollsRef.current = scrolls
+    if (append) setLoadingMore(true)
+    else {
+      setLoading(true)
+      setModels([])
+      setColorsMap({})
+      setError(null)
+      setIsSearch(true)
+    }
+    const knownIds = new Set(Object.keys(colorsMap).map(Number))
     const runId = ++runIdRef.current
-    const res = await window.api.mwSearchBrowser(term)
+    const res = await window.api.mwSearchBrowser(term, scrolls)
     if (runId !== runIdRef.current) return
     setLoading(false)
+    setLoadingMore(false)
     if (!res.ok || !res.models || res.models.length === 0) {
-      setError(res.error ?? t('mw.noResults'))
+      if (!append) setError(res.error ?? t('mw.noResults'))
       return
     }
-    setModels(res.models)
-    const init: Record<number, ColorState> = {}
-    res.models.forEach((m) => (init[m.id] = { colors: [], loading: true }))
-    setColorsMap(init)
-    loadColors(res.models, runId)
+    setModels((prev) => {
+      if (!append) return res.models!
+      const have = new Set(prev.map((m) => m.id))
+      return [...prev, ...res.models!.filter((m) => !have.has(m.id))]
+    })
+    setColorsMap((prev) => {
+      const next = { ...prev }
+      res.models!.forEach((m) => {
+        if (!next[m.id]) next[m.id] = { colors: [], loading: true }
+      })
+      return next
+    })
+    loadColors(
+      res.models.filter((m) => !knownIds.has(m.id)),
+      runId
+    )
   }
   const onSearch = (): void => {
-    void runSearch()
+    void runSearch(2, false)
   }
   const onTrending = (): void => {
     setQ('')
@@ -168,7 +189,8 @@ export function MakerWorld(): React.JSX.Element {
     fetchPage({ navKey: cat }, offset, false)
   }
   const onLoadMore = (): void => {
-    void fetchPage(sourceRef.current, nextOffsetRef.current, true)
+    if (isSearch) void runSearch(searchScrollsRef.current + 3, true)
+    else void fetchPage(sourceRef.current, nextOffsetRef.current, true)
   }
 
   useEffect(() => {
@@ -429,7 +451,7 @@ export function MakerWorld(): React.JSX.Element {
         })}
       </div>
 
-      {models.length > 0 && !loading && !isSearch && (
+      {models.length > 0 && !loading && (
         <div className="flex justify-center pt-1">
           <button className="btn-ghost" onClick={onLoadMore} disabled={loadingMore}>
             {loadingMore ? <Loader2 size={16} className="animate-spin" /> : null}

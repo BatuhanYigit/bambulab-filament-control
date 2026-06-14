@@ -64,8 +64,10 @@ const api = {
   mwColors: (id: number): Promise<{ ok: boolean; colors?: MwColor[]; error?: string }> =>
     ipcRenderer.invoke('mw:colors', id),
   mwSearchBrowser: (
-    keyword: string
-  ): Promise<{ ok: boolean; models?: MwModel[]; error?: string }> => ipcRenderer.invoke('mw:searchBrowser', keyword),
+    keyword: string,
+    scrolls?: number
+  ): Promise<{ ok: boolean; models?: MwModel[]; error?: string }> =>
+    ipcRenderer.invoke('mw:searchBrowser', keyword, scrolls),
 
   openDataFolder: (): Promise<boolean> => ipcRenderer.invoke('app:openDataFolder'),
 
